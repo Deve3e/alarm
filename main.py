@@ -4,6 +4,43 @@ import tkinter as tk
 from tkinter import messagebox
 import winsound
 
+# ---------- THEME CONFIGURATION ----------
+current_theme = "light"
+
+themes = {
+    "light": {
+        "bg": "white",
+        "fg": "black",
+        "button_bg": "lightgray",
+        "button_fg": "black",
+        "entry_bg": "white",
+        "entry_fg": "black"
+    },
+    "dark": {
+        "bg": "#2b2b2b",
+        "fg": "white",
+        "button_bg": "#4a4a4a",
+        "button_fg": "white",
+        "entry_bg": "#3a3a3a",
+        "entry_fg": "white"
+    }
+}
+
+def apply_theme():
+    theme = themes[current_theme]
+    app.config(bg=theme["bg"])
+    label_title.config(bg=theme["bg"], fg=theme["fg"])
+    entry_time.config(bg=theme["entry_bg"], fg=theme["entry_fg"], insertbackground=theme["fg"])
+    btn_set.config(bg=theme["button_bg"], fg=theme["button_fg"])
+    btn_toggle.config(bg=theme["button_bg"], fg=theme["button_fg"])
+    label_status.config(bg=theme["bg"], fg="green" if current_theme == "light" else "lightgreen")
+
+def toggle_theme():
+    global current_theme
+    current_theme = "dark" if current_theme == "light" else "light"
+    apply_theme()
+    btn_toggle.config(text="🌙" if current_theme == "dark" else "☀️")
+    
 # ---------- ALARM FUNCTION ----------
 def alarm_loop(alarm_time, label_status):
     while True:

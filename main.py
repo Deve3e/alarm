@@ -43,7 +43,22 @@ def toggle_theme():
     apply_theme()
     btn_toggle.config(text="🌙" if current_theme == "dark" else "☀️")
 
-# ---------- ALARM FUNCTION ----------
+def format_time(*args):
+    value = entry_var.get()
+    # Remove non-digits
+    digits = ''.join(c for c in value if c.isdigit())
+    # Limit to 4 digits
+    digits = digits[:4]
+    # Format with colon after 2 digits
+    if len(digits) >= 3:
+        formatted = digits[:2] + ':' + digits[2:]
+    else:
+        formatted = digits
+    # Update if changed
+    if formatted != value:
+        entry_var.set(formatted)
+
+# ---------- INPUT FORMATTING ----------
 def alarm_loop(alarm_time, label_status):
     while True:
         now = datetime.datetime.now()
@@ -56,22 +71,33 @@ def alarm_loop(alarm_time, label_status):
 
 # ---------- START ALARM ----------
 def set_alarm():
-
     input_time = entry_time.get()
     try:
-        alarm_time = datetime.datetime.strptime(input_time, "%H:%M").time()
+        # Parse HH:MM format
+        if ':' in input_time:
+            hours, minutes = input_time.split(':')
+            hours = int(hours)
+            minutes = int(minutes)
+            if not (0 <= hours <= 23 and 0 <= minutes <= 59):
+                raise ValueError
+        else:
+            raise ValueError
+        alarm_time = datetime.time(hours, minutes)
         label_status.config(text=f"Alarm set for {input_time}")
 
         # Run alarm in separate thread so UI doesn't freeze
         threading.Thread(target=alarm_loop, args=(alarm_time, label_status), daemon=True).start()
 
     except ValueError:
-        messagebox.showerror("Invalid Input", "Please enter time in HH:MM format")
+        messagebox.showerror("Invalid Input", "Please enter time in HH:MM format (00:00 to 23:59)")
 
 # ---------- UI ----------
 app = tk.Tk()
 app.title("Alarm App")
 app.geometry("300x250")
+
+entry_var = tk.StringVar()
+entry_var.trace('w', format_time)
 
 # Top frame for the toggle button
 top_frame = tk.Frame(app)
@@ -87,7 +113,7 @@ content_frame.pack(expand=True)
 label_title = tk.Label(content_frame, text="Set Alarm (HH:MM)", font=("Arial", 14))
 label_title.pack(pady=10)
 
-entry_time = tk.Entry(content_frame, font=("Arial", 14), justify="center")
+entry_time = tk.Entry(content_frame, font=("Arial", 14), justify="center", textvariable=entry_var)
 entry_time.pack(pady=5)
 
 btn_set = tk.Button(content_frame, text="Set Alarm", command=set_alarm)

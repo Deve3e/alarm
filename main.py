@@ -29,6 +29,8 @@ themes = {
 def apply_theme():
     theme = themes[current_theme]
     app.config(bg=theme["bg"])
+    top_frame.config(bg=theme["bg"])
+    content_frame.config(bg=theme["bg"])
     label_title.config(bg=theme["bg"], fg=theme["fg"])
     entry_time.config(bg=theme["entry_bg"], fg=theme["entry_fg"], insertbackground=theme["fg"])
     btn_set.config(bg=theme["button_bg"], fg=theme["button_fg"])
@@ -40,18 +42,21 @@ def toggle_theme():
     current_theme = "dark" if current_theme == "light" else "light"
     apply_theme()
     btn_toggle.config(text="🌙" if current_theme == "dark" else "☀️")
-    
+
 # ---------- ALARM FUNCTION ----------
 def alarm_loop(alarm_time, label_status):
     while True:
         now = datetime.datetime.now()
         if now.hour == alarm_time.hour and now.minute == alarm_time.minute:
-            winsound.Beep(1000, 1000)
+            for _ in range(10):  # Beep 5 times
+                winsound.Beep(2000, 1000)
+                winsound.Beep(100, 1000)  # Beep at 2000 Hz for 1000 ms
             label_status.config(text="⏰ Time's up!")
             break
 
 # ---------- START ALARM ----------
 def set_alarm():
+
     input_time = entry_time.get()
     try:
         alarm_time = datetime.datetime.strptime(input_time, "%H:%M").time()
@@ -66,18 +71,31 @@ def set_alarm():
 # ---------- UI ----------
 app = tk.Tk()
 app.title("Alarm App")
-app.geometry("300x200")
+app.geometry("300x250")
 
-label_title = tk.Label(app, text="Set Alarm (HH:MM)", font=("Arial", 14))
+# Top frame for the toggle button
+top_frame = tk.Frame(app)
+top_frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
+
+btn_toggle = tk.Button(top_frame, text="☀️", command=toggle_theme, font=("Arial", 12))
+btn_toggle.pack(side=tk.LEFT)
+
+# Main content frame
+content_frame = tk.Frame(app)
+content_frame.pack(expand=True)
+
+label_title = tk.Label(content_frame, text="Set Alarm (HH:MM)", font=("Arial", 14))
 label_title.pack(pady=10)
 
-entry_time = tk.Entry(app, font=("Arial", 14), justify="center")
+entry_time = tk.Entry(content_frame, font=("Arial", 14), justify="center")
 entry_time.pack(pady=5)
 
-btn_set = tk.Button(app, text="Set Alarm", command=set_alarm)
+btn_set = tk.Button(content_frame, text="Set Alarm", command=set_alarm)
 btn_set.pack(pady=10)
 
-label_status = tk.Label(app, text="", fg="green")
+label_status = tk.Label(content_frame, text="", fg="green")
 label_status.pack(pady=10)
+
+apply_theme()  # Apply initial theme
 
 app.mainloop()

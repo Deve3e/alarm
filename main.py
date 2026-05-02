@@ -49,11 +49,24 @@ def format_time(*args):
     digits = ''.join(c for c in value if c.isdigit())
     # Limit to 4 digits
     digits = digits[:4]
-    # Format with colon after 2 digits
-    if len(digits) >= 3:
-        formatted = digits[:2] + ':' + digits[2:]
+    
+    if len(digits) == 4:
+        hours = int(digits[:2])
+        minutes = int(digits[2:])
+        # Clamp values
+        hours = min(max(hours, 0), 23)
+        minutes = min(max(minutes, 0), 59)
+        formatted = f"{hours:02d}:{minutes:02d}"
+    elif len(digits) >= 3:
+        # If 3 digits, assume first 2 are hours, last is first digit of minutes
+        hours = int(digits[:2])
+        hours = min(max(hours, 0), 23)
+        formatted = f"{hours:02d}:{digits[2]}"
+    elif len(digits) >= 1:
+        formatted = digits[:2]  # Up to 2 digits for hours
     else:
-        formatted = digits
+        formatted = ''
+    
     # Update if changed
     if formatted != value:
         entry_var.set(formatted)
@@ -103,7 +116,7 @@ entry_var.trace('w', format_time)
 top_frame = tk.Frame(app)
 top_frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
-btn_toggle = tk.Button(top_frame, text="☀️", command=toggle_theme, font=("Arial", 12))
+btn_toggle = tk.Button(top_frame, text="☀️", command=toggle_theme, font=("Segoe UI Emoji", 12))
 btn_toggle.pack(side=tk.LEFT)
 
 # Main content frame

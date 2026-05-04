@@ -79,7 +79,7 @@ def alarm_loop(alarm_time, label_status):
             for _ in range(10):  # Beep 5 times
                 winsound.Beep(2000, 1000)
                 winsound.Beep(100, 1000)  # Beep at 2000 Hz for 1000 ms
-            label_status.config(text="⏰Nigga Time's up!")
+            label_status.config(text="⏰ Alarm Time's up!")
             break
 
 # ---------- START ALARM ----------
